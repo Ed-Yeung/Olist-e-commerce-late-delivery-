@@ -55,7 +55,7 @@ The map below is the **actual Folium choropleth output saved in the uploaded not
 
 ![Brazil late-delivery rate by customer state](figures/late_delivery_rate_by_state.png)
 
-**[Open the interactive state map](https://YOUR-USERNAME.github.io/YOUR-REPOSITORY/maps/late_delivery_rate_by_state.html)**
+**[Open the interactive state map](https://github.com/Ed-Yeung/Olist-e-commerce-late-delivery-/blob/main/maps/late_delivery_rate_by_state.html)**
 
 The interactive version supports zooming, panning, and state hover tooltips showing the state abbreviation and late-delivery rate. It is served from the included `docs/` folder using GitHub Pages.
 
