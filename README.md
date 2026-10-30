@@ -1,19 +1,18 @@
-[Uploading README (11).md…]()
+[Uploading README (12).md…]()
 # Olist Late-Delivery Risk Scoring
 
-**A time-aware machine-learning project that ranks Brazilian e-commerce orders by their risk of arriving after the promised date.**
+**A time-aware machine-learning project that ranks Brazilian e-commerce orders by their risk of arriving after the promised delivery date.**
 
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Pandas](https://img.shields.io/badge/Data-Pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Scikit-learn](https://img.shields.io/badge/ML-scikit--learn-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org/)
+[![Pandas](https://img.shields.io/badge/Data-Pandas-150458?logo=pandas)](https://pandas.pydata.org/)
+[![Scikit-learn](https://img.shields.io/badge/ML-scikit--learn-F7931E?logo=scikitlearn)](https://scikit-learn.org/)
 [![XGBoost](https://img.shields.io/badge/Model-XGBoost-EC6B23)](https://xgboost.readthedocs.io/)
-[![Folium](https://img.shields.io/badge/Maps-Folium-77B829)](https://python-visualization.github.io/folium/)
 
-This project uses the public **Olist Brazilian E-Commerce dataset (2016–2018)** to investigate a practical operations question:
+This project uses the public **Olist Brazilian E-Commerce dataset (2016–2018)** to answer a practical operations question:
 
 > At checkout, which orders should an operations team review first because they are more likely to arrive after the estimated delivery date?
 
-The model is designed as a **risk-ranking tool**, not as a guarantee that a particular order will be late. The aim is to concentrate more late orders into a small review queue so that teams can prioritise seller follow-ups, shipment monitoring, or customer communication.
+The model is designed as a **risk-ranking tool**, not a guarantee that an individual order will be late. The goal is to concentrate more late orders into a limited review queue so that teams can prioritise shipment monitoring, seller follow-ups, or customer communication.
 
 ---
 
@@ -25,21 +24,21 @@ The model is designed as a **risk-ranking tool**, not as a guarantee that a part
 | August 2018 orders scored | 6,323 |
 | Late rate in the highest-risk 10% | **17.3%** |
 | Share of August late orders captured in the highest-risk 10% | **28%** |
-| Best-performing model on the final test set | **Logistic Regression** |
+| Strongest model on the supplied test results | **Logistic Regression** |
 
-**Main takeaway:** the model is more useful for prioritising a limited review queue than for making an automatic late/on-time decision for every order.
+**Main takeaway:** the model is more useful for prioritising a small review queue than for making an automatic late/on-time decision for every order.
 
-## 1. Business problem and operational use case
+## 1. Business problem
 
-An order is labelled late when its actual customer-delivery date is after the estimated delivery date shown to the customer. The late class is relatively rare, accounting for approximately 6.8% of orders in the overall dataset.
+An order is labelled late when its actual customer-delivery date is after the estimated delivery date shown to the customer. Late orders account for approximately 6.8% of the delivered orders in the overall dataset.
 
-A conventional accuracy score can therefore be misleading: a classifier that predicts *on time* for every order would achieve approximately 93.2% accuracy while finding **none** of the late orders.
+Accuracy alone is misleading for this problem. A classifier that predicts *on time* for every order would achieve approximately 93.2% accuracy while identifying none of the late orders.
 
-The project instead focuses on ranking orders by predicted late-delivery risk. An operations team can then review the highest-scoring orders first, according to its available capacity.
+The project therefore focuses on ranking orders by predicted late-delivery risk.
 
-### August 2018: what does the ranking achieve?
+### August 2018: how useful is the ranking?
 
-In an August 2018 scoring example, the model ranked 6,323 orders from highest to lowest risk:
+The model ranked 6,323 August orders from highest to lowest risk:
 
 | August order group | Orders reviewed | Late orders found | Late rate within group |
 |---|---:|---:|---:|
@@ -47,61 +46,25 @@ In an August 2018 scoring example, the model ranked 6,323 orders from highest to
 | Highest-scoring 10% | 632 | 109 | **17.3%** |
 | Highest-scoring 1% | 63 | 22 | **34.9%** |
 
-The top 10% contains **109 of the 390 late orders**, capturing approximately **28% of all late orders**. By comparison, a random 10% sample would be expected to contain about 10% of the late orders (roughly 39 in this example). The highest-risk 1% captures 5.6% of all late orders, compared with an expected 1% under random selection.
+The highest-risk 10% contains **109 of the 390 late orders**, capturing approximately **28% of all late orders**. A random 10% sample would be expected to contain roughly 10% of the late orders (about 39 in this example). The highest-risk 1% captures 5.6% of all late orders, compared with approximately 1% under random selection.
 
-![Share of late and on-time orders](figures/late_delivery_share.png)
+![Late and on-time order distribution](figures/late_delivery_share.png)
 
-![Share of all late orders captured by the highest-risk groups](figures/top_risk_capture.png)
+![Share of late orders captured by the highest-risk groups](figures/top_risk_capture.png)
 
-This is the intended business value: **review fewer orders while finding a larger share of the orders that eventually arrive late**. It does not mean every flagged order will be late. Most orders flagged by a binary threshold may still arrive on time, so the score should be treated as a prioritisation signal rather than a customer-facing probability.
+This is the intended business value: **review fewer orders while finding a larger share of the orders that eventually arrive late**. It does not mean every flagged order will be late. The score is a prioritisation signal, not a customer-facing probability or a guarantee of delay.
 
-## 2. Geographic and logistics view
+## 2. Geographic distribution across Brazil
 
-Customer and seller ZIP-code prefixes are linked to latitude/longitude coordinates. These coordinates support a straight-line distance feature between the seller and customer.
+The map below is the **state-level late-delivery choropleth output from the notebook**. Each Brazilian state is shaded according to its observed late-delivery rate, using the colour scale shown on the map. Green represents lower rates; yellow and orange represent higher rates.
 
-<p align="center">
-  <a href="figures/example_shipping_route.html">
-    <img src="figures/example_shipping_route.png" alt="Illustrative seller-to-customer shipment route in Brazil" width="82%" />
-  </a>
-</p>
+![Brazil state-level late-delivery rate choropleth generated in the notebook](figures/late_delivery_rate_by_state.png)
 
-<p align="center">
-  <a href="figures/example_shipping_route.html"><strong>Open the interactive example route map</strong></a>
-</p>
-
-The map illustrates one shipment record from the notebook: a seller in Curitiba, Paraná (PR), and a customer in São Joaquim da Barra, São Paulo (SP). The distance is approximately **566.5 km** using the Haversine formula. It is a straight-line estimate, not a road-navigation route or a map of all orders.
-
-For each item, the Haversine distance is calculated as:
-
-\[
- a = \sin^2\left(\frac{\Delta\phi}{2}\right) + \cos\phi_1\cos\phi_2\sin^2\left(\frac{\Delta\lambda}{2}\right),
- \qquad d = 2R\arcsin(\sqrt{a}), \quad R=6{,}371\text{ km}
-\]
-
-For multi-seller orders, item-level distances are averaged to produce an order-level distance feature.
-
-### Generate an interactive order-distribution map
-
-The repository also includes [`scripts/build_distribution_map.py`](scripts/build_distribution_map.py). Run it after the notebook has created the order-level `df_full_v1` DataFrame:
-
-```python
-from scripts.build_distribution_map import build_distribution_map
-
-order_map = build_distribution_map(df_full_v1)
-order_map
-```
-
-The script saves `figures/order_distribution_map.html` and provides three switchable layers:
-
-- **Customer order density** — where customer orders are concentrated.
-- **Late-delivery density** — where late orders are concentrated (counts, not late rates).
-- **Late-delivery rate by state** — state-level rates, with marker size reflecting order volume.
-
-The distribution map is generated from the full order-level coordinates when the notebook data is available. The static route image above is the preview included with this README; the route should not be mistaken for a full-data density map.
+This view adds geographic context to the problem: late-delivery performance is not uniform across Brazil. The map should be interpreted together with the number of orders in each state, since a rate calculated from a small number of orders can be less stable than one based on a larger sample.
 
 ## 3. Data and preparation
 
-The raw dataset is split across orders, customers, order items, sellers, products, payments, and ZIP-code geolocation tables. These sources are joined and then aggregated back to **one row per order**, because late delivery is an order-level outcome.
+The public dataset contains separate tables for orders, customers, order items, sellers, products, payments, and ZIP-code geolocation. These sources are joined and then aggregated back to **one row per order**, because late delivery is an order-level outcome.
 
 ### Target definition
 
@@ -116,7 +79,7 @@ The estimated delivery timestamp is stored at midnight, so the comparison is mad
 ### Main cleaning decisions
 
 - Remove records without the delivery timestamps required to determine the target.
-- Deduplicate geolocation to one coordinate record per ZIP-code prefix; keep the first record and drop the city label from the coordinate lookup.
+- Deduplicate geolocation to one coordinate record per ZIP-code prefix; keep the first coordinate record.
 - Use inner joins for customer and seller ZIP-code coordinates; orders without matching coordinates are excluded.
 - Remove cancelled orders and `not_defined` payment types.
 - Convert payment type into boleto, credit-card, debit-card, and voucher indicators.
@@ -125,33 +88,33 @@ The estimated delivery timestamp is stored at midnight, so the comparison is mad
 
 ## 4. Exploratory analysis
 
-The monthly late-delivery rate is not stable. It stays around 3% for much of 2017, rises sharply in late 2017 and early 2018, reaches approximately 18.9% in March 2018, and then falls to approximately 1.2% in June 2018. This temporal variation is one reason to evaluate the models chronologically rather than randomly splitting rows.
+The monthly late-delivery rate changes substantially over time. It stays around 3% for much of 2017, rises sharply in late 2017 and early 2018, reaches approximately 18.9% in March 2018, and falls to approximately 1.2% in June 2018. This variation is one reason to evaluate the models chronologically rather than randomly splitting rows.
 
 ![Monthly late-delivery rate](figures/monthly_late_rate.png)
 
-Three patterns stand out in the exploratory analysis:
+Three patterns stand out:
 
 1. **Distance is associated with late delivery.** Orders travelling more than 1,000 km have a 10.4% late rate, compared with 4.4% for orders travelling less than 50 km.
-2. **The promised delivery window is associated with the outcome.** Orders with a 1–7 day promise have a 15.1% late rate; those with an 8–14 day promise have a 4.5% late rate. The promise is part of the target definition, so this is an association — not evidence that a longer promise causes better delivery performance.
-3. **Cross-state orders have a higher observed late rate.** The late rate is 8.0% for cross-state orders versus 4.5% for same-state orders. The boleto difference is small (7.3% versus 6.6%) and is not treated as a strong operational driver on its own.
+2. **The promised delivery window is associated with the outcome.** Orders with a 1–7 day promise have a 15.1% late rate; those with an 8–14 day promise have a 4.5% late rate. This is an association, not evidence that a longer promise causes better delivery performance; the promised date is part of the target definition.
+3. **Cross-state orders have a higher observed late rate.** The late rate is 8.0% for cross-state orders versus 4.5% for same-state orders. The boleto difference is smaller (7.3% versus 6.6%).
 
 ## 5. Feature engineering
 
-Features are intended to represent information available when the order is placed. Variables that reveal the current order's future delivery outcome are not used as model inputs.
+Features are intended to represent information available when an order is placed. Variables that reveal the current order's future delivery outcome are not used as model inputs.
 
 | Feature group | Examples | Purpose |
 |---|---|---|
-| Delivery windows | `shipping_window_days`, `promised_delivery_window_days` | Capture the seller handling window and the delivery promise |
+| Delivery windows | `shipping_window_days`, `promised_delivery_window_days` | Capture the seller handling window and delivery promise |
 | Logistics | `avg_distance_km`, `same_state` | Represent shipment distance and whether seller/customer are in the same state |
 | Order and product | Total price, freight, weight, volume; `multi_item`, `multi_seller` | Describe order value, size, and fulfilment complexity |
 | Calendar | Cyclical hour/day features; holiday, Carnival, Black Friday, and Christmas flags | Capture recurring timing patterns |
-| Historical performance | Seller, category, customer-state, and seller-state → customer-state route history | Summarise delivery outcomes that were already known before the current order |
+| Historical performance | Seller, category, customer-state, and seller-state → customer-state route history | Summarise delivery outcomes already known before the current order |
 | Recent platform performance | `platform_7d_shrunk_late_rate` | Record the platform's shrunk late-delivery rate over the preceding **7 days** |
 | Interaction features | Distance × promised window; seller late rate × shipping window | Capture relationships between logistics and historical risk |
 
 ### Leakage-safe historical rates
 
-Historical performance is only useful if it was known when the order was placed. Each completed delivery becomes observable at `order_delivered_customer_date`. A backward as-of join is used to attach cumulative history, with exact matches disabled so a delivery recorded at the same timestamp is not treated as prior knowledge.
+Historical performance is only useful if it was known when the order was placed. Each completed delivery becomes observable at `order_delivered_customer_date`. A backward as-of join attaches cumulative history, with exact matches disabled so a delivery recorded at the same timestamp is not treated as prior knowledge.
 
 Raw rates are unstable when there are few historical orders. They are shrunk toward an 8% prior with strength \(K=20\):
 
@@ -196,7 +159,7 @@ The split is based on purchase time so that validation and test orders occur aft
 | Validation | 2018-03 to 2018-05 | 20,448 | 2,065 | 10.10% |
 | Test | 2018-06 to 2018-08 | 18,525 | 665 | 3.59% |
 
-The sharp change in late-delivery prevalence between validation and test is important when interpreting PR-AUC. The random-ranking PR-AUC baseline is approximately equal to the positive-class prevalence: about 10.1% on validation and 3.59% on test.
+The change in late-delivery prevalence between validation and test matters when interpreting PR-AUC. The random-ranking PR-AUC baseline is approximately equal to the positive-class prevalence: about 10.1% on validation and 3.59% on test.
 
 ### Models
 
@@ -216,15 +179,13 @@ The `best_thr` value is selected using validation predictions and then carried f
 | Random Forest | **0.2150** | 0.6631 | 0.6717 | 0.0302 | 0.4263 |
 | XGBoost | 0.1740 | 0.6542 | 0.6581 | 0.0463 | 0.5886 |
 
-![Validation and test PR-AUC comparison](figures/model_pr_auc_comparison.png)
+**Logistic Regression is the strongest candidate on the supplied test results.** Random Forest has the highest validation PR-AUC, but its test PR-AUC falls below the test prevalence baseline and its test ROC-AUC is 0.4263. XGBoost is also weaker on the test period. Logistic Regression has the strongest test PR-AUC and ROC-AUC among the three models in this comparison.
 
-**Logistic Regression is retained as the strongest candidate for the final ranking.** Random Forest has the highest validation PR-AUC, but its test PR-AUC falls below the test prevalence baseline and its test ROC-AUC is 0.4263. XGBoost is also weaker on the test period. Logistic Regression has the strongest test PR-AUC and ROC-AUC among the three models in this comparison.
-
-The Logistic Regression test PR-AUC of 0.0717 is approximately twice the test prevalence baseline of 0.0359. This is a useful lift over random ranking, but the absolute PR-AUC remains modest; the model should therefore be evaluated as a prioritisation tool, not a highly accurate order-level classifier.
+The Logistic Regression test PR-AUC of 0.0717 is approximately twice the test prevalence baseline of 0.0359. This is a lift over random ranking, but the absolute PR-AUC remains modest; the model should be evaluated as a prioritisation tool, not a highly accurate order-level classifier.
 
 ### Why PR-AUC and ROC-AUC tell different stories
 
-- **ROC-AUC** measures how well the model ranks late orders above on-time orders across thresholds. It is less directly affected by the positive-class prevalence.
+- **ROC-AUC** measures how well the model ranks late orders above on-time orders across thresholds. It is less directly affected by positive-class prevalence.
 - **PR-AUC / Average Precision** focuses on precision and recall for the late class. Its baseline changes with the late-delivery rate, making it particularly useful for an imbalanced target.
 - **Threshold metrics** such as Precision, Recall, and F1 depend on the selected threshold. They are important for operational decisions, but they do not replace threshold-independent ranking metrics.
 
@@ -238,7 +199,7 @@ The Logistic Regression test PR-AUC of 0.0717 is approximately twice the test pr
 ## Limitations and next steps
 
 - The dataset covers historical orders from 2016–2018; current logistics patterns may differ.
-- Late-delivery prevalence changes materially over time, so performance should be monitored by month and by geography.
+- Late-delivery prevalence changes materially over time, so performance should be monitored by month and geography.
 - A high-risk score is a prioritisation signal, not a calibrated probability or a guarantee of delay.
 - The next evaluation step is rolling/expanding-window validation across multiple future periods, followed by a final untouched test period.
 - A practical deployment decision should define review capacity and the relative cost of a missed late order versus an unnecessary intervention.
@@ -248,17 +209,10 @@ The Logistic Regression test PR-AUC of 0.0717 is approximately twice the test pr
 ```text
 .
 ├── README.md
-├── figures/
-│   ├── example_shipping_route.png
-│   ├── example_shipping_route.html
-│   ├── late_delivery_share.png
-│   ├── monthly_late_rate.png
-│   ├── top_risk_capture.png
-│   └── model_pr_auc_comparison.png
-└── scripts/
-    └── build_distribution_map.py
+└── figures/
+    ├── late_delivery_share.png
+    ├── late_delivery_rate_by_state.png
+    ├── monthly_late_rate.png
+    ├── top_risk_capture.png
+    └── model_pr_auc_comparison.png
 ```
-
-## Data source
-
-[Olist — Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce). The anonymised dataset covers Brazilian e-commerce orders from 2016 to 2018.
