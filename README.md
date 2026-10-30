@@ -1,5 +1,3 @@
-[Uploading README.md…]()
-[README.md](https://github.com/user-attachments/files/34167999/README.md)
 # Brazilian E-Commerce — Late Delivery Risk
 
 **A time-aware classification and ranking project using Olist order data (Brazil, 2016–2018).**
@@ -60,15 +58,6 @@ The map below is the **actual Folium choropleth output saved in the uploaded not
 **[Open the interactive state map](https://YOUR-USERNAME.github.io/YOUR-REPOSITORY/maps/late_delivery_rate_by_state.html)**
 
 The interactive version supports zooming, panning, and state hover tooltips showing the state abbreviation and late-delivery rate. It is served from the included `docs/` folder using GitHub Pages.
-
-**Enable the interactive map on GitHub**
-1. Push this project folder to a GitHub repository.
-2. Open **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select your default branch and the `/docs` folder, then save.
-5. Replace `YOUR-USERNAME` and `YOUR-REPOSITORY` in the link above with your GitHub username and repository name.
-
-GitHub README pages display the static preview above; they do not execute the map's JavaScript inline. GitHub Pages serves the included HTML map as an interactive web page. See the [GitHub Pages publishing-source guide](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
 The map is descriptive, not causal. State rates can be affected by differences in order volume, sellers, routes, and the time periods represented in the data.
 
@@ -312,22 +301,3 @@ The coefficients show the direction and relative magnitude of each standardised 
         └── late_delivery_rate_by_state.html
 ```
 
-## Run the notebook
-
-1. Create and activate a Python environment.
-2. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Download the Olist CSV files and place them in `data/raw/` (see `data/README.md`).
-4. Open `notebooks/BrazilianE-Commerce_v5.1_cleaned.ipynb` and run the cells in order.
-
-The included notebook copy changes the original machine-specific CSV paths to a repository-relative `data/raw/` folder. Its saved cell outputs are retained. The `source/` subfolder preserves the originally uploaded notebook unchanged.
-
-## Reproducibility notes
-
-- Raw CSV files are not included in this package.
-- The interactive map is extracted from the notebook's saved Folium output. It uses Leaflet/OpenStreetMap assets from external CDNs and therefore needs an internet connection when opened.
-- The model comparison table above reflects the executed output saved in the uploaded notebook. Re-running the notebook may produce different values if the data, package versions, or model settings change.
